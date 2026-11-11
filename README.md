@@ -5,6 +5,8 @@ Docente: Ing. Renzo Taco Coayla.
 
 **Sitio del proyecto:** https://adriansalasepis.github.io/Clustering---6-Nodos/
 
+**Carpeta del proyecto (Google Drive):** https://drive.google.com/drive/folders/1T9UwnX6DBmFSXpsACJz7dc8REjYZOc-C
+
 ## Descripción
 
 Diseño de un clúster de conmutación por error (Windows Server Failover Clustering) de seis nodos para una municipalidad distrital de Tacna. Cada nodo aloja un servicio (archivos, trámite documentario, base de datos, intranet, DHCP e impresión) y otro nodo actúa como respaldo. El diseño incluye controlador de dominio, almacenamiento compartido iSCSI con disco testigo, red segmentada en seis VLAN con pfSense, controles alineados con ISO/IEC 27001:2022 y NIST CSF 2.0, y una política de respaldo 3-2-1.
