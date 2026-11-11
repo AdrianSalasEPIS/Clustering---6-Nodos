@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clúster de alta disponibilidad de seis nodos – Windows Server 2022</title>
+<style>
+:root{--azul:#1f3864;--azul2:#2e75b6;--claro:#f4f7fb;--texto:#222;--gris:#5a6270;--verde:#548235}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;color:var(--texto);background:#fff;line-height:1.6}
+header{background:linear-gradient(135deg,#1f3864 0%,#2e75b6 100%);color:#fff;padding:64px 24px 56px;text-align:center}
+header .curso{font-size:14px;letter-spacing:2px;text-transform:uppercase;opacity:.85}
+header h1{font-size:clamp(28px,4vw,46px);margin:12px auto 10px;max-width:950px;line-height:1.2}
+header p{max-width:760px;margin:0 auto 28px;font-size:18px;opacity:.95}
+.btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-block;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px}
+.btn-w{background:#fff;color:var(--azul)}
+.btn-o{border:2px solid #fff;color:#fff}
+nav{position:sticky;top:0;background:#fff;border-bottom:1px solid #e3e8ef;z-index:5}
+nav ul{list-style:none;margin:0 auto;padding:0 16px;display:flex;gap:22px;justify-content:center;flex-wrap:wrap;max-width:1100px}
+nav a{display:block;padding:14px 0;color:var(--azul);text-decoration:none;font-weight:600;font-size:15px}
+section{max-width:1100px;margin:0 auto;padding:56px 24px}
+section.alt{background:var(--claro);max-width:none}
+section.alt>div{max-width:1100px;margin:0 auto}
+h2{color:var(--azul);font-size:30px;margin:0 0 8px}
+.sub{color:var(--gris);margin:0 0 28px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px}
+.kpi{background:#fff;border:1px solid #e3e8ef;border-radius:12px;padding:22px;text-align:center}
+.kpi b{display:block;font-size:34px;color:var(--azul2)}
+.kpi span{color:var(--gris);font-size:14px}
+.nodos{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.nodo{background:#fff;border-left:5px solid var(--verde);border-radius:10px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.nodo h3{margin:0 0 4px;color:var(--azul)}
+.nodo p{margin:2px 0;font-size:15px}
+.nodo small{color:var(--gris)}
+.fig{margin:0 0 36px}
+.fig img{width:100%;border:1px solid #e3e8ef;border-radius:10px}
+.fig figcaption{color:var(--gris);font-size:14px;margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:15px;background:#fff}
+th,td{padding:10px 12px;border-bottom:1px solid #e3e8ef;text-align:left}
+th{background:var(--azul);color:#fff}
+.desc{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.card{background:#fff;border:1px solid #e3e8ef;border-radius:12px;padding:24px}
+.card h3{margin:0 0 6px;color:var(--azul)}
+.card p{color:var(--gris);font-size:14px;margin:0 0 14px}
+.card a{color:#fff;background:var(--azul2);padding:9px 16px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;margin-right:6px;display:inline-block;margin-bottom:6px}
+.equipo{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.equipo div{background:#fff;border:1px solid #e3e8ef;border-radius:10px;padding:14px 16px}
+.equipo b{color:var(--azul)}
+footer{background:var(--azul);color:#cfd8e6;text-align:center;padding:28px 16px;font-size:14px}
+</style>
+</head>
+<body>
+<header>
+  <div class="curso">Universidad Privada de Tacna · Sistemas Operativos I · II Unidad</div>
+  <h1>Clúster de alta disponibilidad de seis nodos con Windows Server 2022</h1>
+  <p>Diseño de la solución tecnológica para que los servicios internos de una municipalidad distrital de Tacna sigan funcionando cuando falla un servidor.</p>
+  <div class="btns">
+    <a class="btn btn-w" href="#descargas">Descargar documentos</a>
+    <a class="btn btn-o" href="#arquitectura">Ver arquitectura</a>
+    <a class="btn btn-o" href="https://github.com/AdrianSalasEPIS/Clustering---6-Nodos" target="_blank" rel="noopener">Repositorio</a>
+  </div>
+</header>
+
+<nav><ul>
+  <li><a href="#problema">Problema</a></li>
+  <li><a href="#solucion">Solución</a></li>
+  <li><a href="#arquitectura">Diagramas</a></li>
+  <li><a href="#red">Red</a></li>
+  <li><a href="#descargas">Descargas</a></li>
+  <li><a href="#equipo">Equipo</a></li>
+</ul></nav>
+
+<section id="problema">
+  <h2>El problema</h2>
+  <p class="sub">Un único servidor de 2017 con Windows Server 2012 R2, ya sin soporte, aloja todos los servicios de la municipalidad.</p>
+  <div class="kpis">
+    <div class="kpi"><b>150</b><span>trabajadores en 10 áreas</span></div>
+    <div class="kpi"><b>5</b><span>caídas en el escenario 2025</span></div>
+    <div class="kpi"><b>≈ 30 h</b><span>sin servicio al año</span></div>
+    <div class="kpi"><b>98,5 %</b><span>disponibilidad actual</span></div>
+  </div>
+</section>
+
+<section class="alt" id="solucion"><div>
+  <h2>La solución</h2>
+  <p class="sub">Clúster de conmutación por error (WSFC) de seis nodos: cada nodo aloja un servicio y dos nodos quedan como respaldo. Meta: disponibilidad ≥ 99,5 % y recuperación de cada servicio en ≤ 120 s.</p>
+  <div class="nodos">
+    <div class="nodo"><h3>NODO1 · Archivos</h3><p>\\ARCHIVOS · 172.30.10.21</p><small>Respaldo: NODO2 → NODO3</small></div>
+    <div class="nodo"><h3>NODO2 · Trámite documentario</h3><p>IIS · http://tramite · 172.30.10.22</p><small>Respaldo: NODO3 → NODO4</small></div>
+    <div class="nodo"><h3>NODO3 · Base de datos</h3><p>SQL Server en clúster · 172.30.10.23</p><small>Respaldo: NODO4</small></div>
+    <div class="nodo"><h3>NODO4 · Intranet</h3><p>IIS · http://intranet · 172.30.10.24</p><small>Respaldo: NODO5 → NODO6</small></div>
+    <div class="nodo"><h3>NODO5 · DHCP</h3><p>Ámbitos VLAN 20 y 60 · 172.30.10.25</p><small>Respaldo: NODO6 → NODO1</small></div>
+    <div class="nodo"><h3>NODO6 · Impresión</h3><p>\\IMPRESION · 172.30.10.26</p><small>Respaldo: NODO1 → NODO2</small></div>
+  </div>
+  <p style="margin-top:22px">Servidores de apoyo: <b>SRV-DC</b> (Active Directory, DNS) y <b>SRV-STORAGE</b> (discos iSCSI compartidos y disco testigo). Quórum de 7 votos: el clúster sigue en servicio aunque fallen hasta tres nodos. Validación en VirtualBox en el laboratorio de la UPT.</p>
+</div></section>
+
+<section id="arquitectura">
+  <h2>Diagramas técnicos</h2>
+  <p class="sub">Los cuatro diagramas obligatorios del diseño.</p>
+  <figure class="fig"><img src="img/fig1_arquitectura_general.png" alt="Arquitectura general del clúster de seis nodos"><figcaption>Figura 1. Arquitectura general.</figcaption></figure>
+  <figure class="fig"><img src="img/fig2_topologia_red.png" alt="Topología de red y VLAN"><figcaption>Figura 2. Topología de red y segmentación por VLAN.</figcaption></figure>
+  <figure class="fig"><img src="img/fig3_seguridad.png" alt="Diagrama de seguridad"><figcaption>Figura 3. Seguridad por capas y NIST CSF 2.0.</figcaption></figure>
+  <figure class="fig"><img src="img/fig4_despliegue.png" alt="Diagrama de despliegue en VirtualBox"><figcaption>Figura 4. Despliegue del entorno de validación en VirtualBox.</figcaption></figure>
+</section>
+
+<section class="alt" id="red"><div>
+  <h2>Plan de red</h2>
+  <p class="sub">Bloque privado 172.16.0.0/12, sin solapamiento entre subredes.</p>
+  <table>
+    <tr><th>VLAN</th><th>Nombre</th><th>Subred</th><th>Uso</th></tr>
+    <tr><td>10</td><td>Servidores</td><td>172.30.10.0/24</td><td>Nodos, clúster, roles y SRV-DC</td></tr>
+    <tr><td>20</td><td>Usuarios</td><td>172.30.20.0/23</td><td>150 equipos por DHCP</td></tr>
+    <tr><td>30</td><td>Heartbeat</td><td>172.30.30.0/24</td><td>Latido entre nodos</td></tr>
+    <tr><td>40</td><td>iSCSI</td><td>172.30.40.0/24</td><td>Discos compartidos</td></tr>
+    <tr><td>50</td><td>Gestión</td><td>172.30.50.0/24</td><td>Administración</td></tr>
+    <tr><td>60</td><td>Impresoras</td><td>172.30.60.0/24</td><td>Impresoras de red</td></tr>
+    <tr><td>99</td><td>VPN</td><td>172.30.99.0/24</td><td>Administradores remotos con MFA</td></tr>
+  </table>
+</div></section>
+
+<section id="descargas">
+  <h2>Descargas</h2>
+  <p class="sub">Documento técnico y presentación de la II Unidad.</p>
+  <div class="desc">
+    <div class="card"><h3>Documento técnico</h3><p>Diseño completo en 14 secciones, normas APA 7.</p>
+      <a href="descargas/Documento_Tecnico_Cluster_6_Nodos_II_Unidad.docx" download>Word</a>
+      <a href="descargas/Documento_Tecnico_Cluster_6_Nodos_II_Unidad.pdf" download>PDF</a></div>
+    <div class="card"><h3>Presentación</h3><p>Resumen del diseño para la sustentación.</p>
+      <a href="descargas/Presentacion_Cluster_6_Nodos_II_Unidad.pptx" download>PPTX</a>
+      <a href="descargas/Presentacion_Cluster_6_Nodos_II_Unidad.pdf" download>PDF</a></div>
+    <div class="card"><h3>Carpeta del proyecto</h3><p>Fuentes, diagramas y evidencias.</p>
+      <a href="https://drive.google.com/drive/folders/1T9UwnX6DBmFSXpsACJz7dc8REjYZOc-C" target="_blank" rel="noopener">Google Drive</a></div>
+  </div>
+</section>
+
+<section class="alt" id="equipo"><div>
+  <h2>Equipo</h2>
+  <p class="sub">Docente: Ing. Renzo Taco Coayla</p>
+  <div class="equipo">
+    <div><b>Salas Acuña, Adrian Fabricio</b><br>NODO1 · SRV-DC</div>
+    <div><b>Hualpa Flores, Cesar Fernando</b><br>NODO2</div>
+    <div><b>Jiménez Romero, Josué Andre</b><br>NODO3</div>
+    <div><b>Lazaro Cruz, Michael Enrique</b><br>NODO4</div>
+    <div><b>Carretero Hualpa, Victor Cesar</b><br>NODO5 · SRV-STORAGE</div>
+    <div><b>Meneses Inquilla, Edison</b><br>NODO6 · pfSense</div>
+  </div>
+</div></section>
+
+<footer>Universidad Privada de Tacna · Facultad de Ingeniería · Escuela Profesional de Ingeniería de Sistemas · Tacna, 2026</footer>
+</body>
+</html>
